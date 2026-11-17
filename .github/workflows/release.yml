@@ -3,6 +3,8 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  # Re-run the packaging of an existing tag: choose the tag as the ref.
+  workflow_dispatch:
 
 permissions:
   contents: write
