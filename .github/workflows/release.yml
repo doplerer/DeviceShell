@@ -44,7 +44,8 @@ jobs:
           ./scripts/fetch-tools.ps1 -Root $root
           $zip = Join-Path $env:RUNNER_TEMP "$name.zip"
           Compress-Archive -Path $root -DestinationPath $zip
-          (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower() + "  $name.zip" | Set-Content "$zip.sha256" -Encoding ascii
+          # LF line ending, so `sha256sum -c` accepts it on any system.
+          [IO.File]::WriteAllText("$zip.sha256", (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower() + "  $name.zip`n")
           "ZIP=$zip" | Add-Content $env:GITHUB_ENV
 
       - name: Publish release
