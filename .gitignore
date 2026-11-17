@@ -1,0 +1,38 @@
+# Local portable installation (executable, settings, data, keys and tools)
+/dist/
+
+# Portable toolchain and build caches
+/.toolchain/
+/.cache/
+
+# Build and test artifacts
+*.exe
+*.exe~
+*.test
+*.out
+*.tmp
+.tmp-*
+*.dsrec
+*.bfrec
+*.prof
+
+# Never commit keys, pairing records or local settings
+adbkey
+adbkey.pub
+*.pem
+*.p12
+*.pfx
+*.key
+selfIdentity.plist
+/config.json
+
+# Editors and operating systems
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Frames written by TestCompareCableVideo show a real phone screen
+/docs/research/**/*.png

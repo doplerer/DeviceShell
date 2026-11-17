@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build portable package
+    runs-on: windows-latest
+    env:
+      CGO_ENABLED: "0"
+      GOFLAGS: -mod=vendor
+      GOPROXY: "off"
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version: "1.27.3"
+          cache: false
+
+      - name: Test
+        run: go test ./...
+
+      - name: Assemble package
+        shell: pwsh
+        run: |
+          $version = '${{ github.ref_name }}'
+          $name = "deviceshell-$version-windows-amd64"
+          $root = Join-Path $env:RUNNER_TEMP $name
+          New-Item -ItemType Directory -Path $root | Out-Null
+          go build -trimpath -ldflags "-s -w" -o (Join-Path $root 'deviceshell.exe') ./cmd/deviceshell
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          Copy-Item configs/config.example.json (Join-Path $root 'config.json')
+          Copy-Item configs/routines (Join-Path $root 'routines') -Recurse
+          Copy-Item LICENSE, THIRD_PARTY_NOTICES.md, README.md -Destination $root
+          ./scripts/fetch-tools.ps1 -Root $root
+          $zip = Join-Path $env:RUNNER_TEMP "$name.zip"
+          Compress-Archive -Path $root -DestinationPath $zip
+          (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower() + "  $name.zip" | Set-Content "$zip.sha256" -Encoding ascii
+          "ZIP=$zip" | Add-Content $env:GITHUB_ENV
+
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $notes = "See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/CHANGELOG.md) for what changed."
+          gh release create '${{ github.ref_name }}' $env:ZIP "$env:ZIP.sha256" --title 'DeviceShell ${{ github.ref_name }}' --notes $notes --verify-tag

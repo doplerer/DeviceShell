@@ -1,0 +1,8 @@
+{
+  "steps": [
+    {"action": "key", "args": ["WAKEUP"]},
+    {"action": "key", "args": ["HOME"]},
+    {"action": "wait", "args": ["500"]},
+    {"action": "screenshot", "args": []}
+  ]
+}

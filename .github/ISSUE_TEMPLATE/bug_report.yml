@@ -1,0 +1,50 @@
+name: Bug report
+description: Something does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for the report. Please remove serial numbers, UDIDs and other personal data from logs before pasting them.
+  - type: input
+    id: version
+    attributes:
+      label: DeviceShell version
+      description: Release tag or commit.
+      placeholder: v1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Devices involved
+      multiple: true
+      options: [Android (USB), Android (Wi-Fi), iPhone/iPad (USB), iPhone/iPad (Wi-Fi), Not device-specific]
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Windows version, device models and OS versions.
+      placeholder: Windows 11 24H2 · Galaxy S22 (Android 15) · iPhone 17 (iOS 27.2)
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run `deviceshell.exe ...`
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Output of `deviceshell.exe doctor --json` and relevant logs
+      description: Logs are under output/logs/.
+      render: text

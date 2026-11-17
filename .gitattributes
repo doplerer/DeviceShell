@@ -1,0 +1,12 @@
+# Normalize text to LF in the repository and on checkout, so gofmt sees the same
+# bytes on every platform. PowerShell scripts keep CRLF for Windows PowerShell 5.1.
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.inf text eol=crlf
+
+*.png binary
+*.bin binary
+*.jsonl text eol=lf
+
+# Third-party sources: excluded from language statistics and collapsed in diffs.
+vendor/** linguist-vendored -diff

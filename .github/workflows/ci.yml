@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Validate (Windows)
+    runs-on: windows-latest
+    env:
+      CGO_ENABLED: "0"
+      GOFLAGS: -mod=vendor
+      GOPROXY: "off"
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@v7
+
+      # Same version as scripts/toolchain.json, which local builds use.
+      - uses: actions/setup-go@v7
+        with:
+          go-version: "1.27.3"
+          cache: false
+
+      - name: gofmt
+        shell: pwsh
+        run: |
+          $unformatted = gofmt -l cmd internal
+          if ($unformatted) { $unformatted; exit 1 }
+
+      - name: go vet (windows)
+        run: go vet ./...
+
+      - name: go vet (linux)
+        shell: pwsh
+        run: |
+          $env:GOOS = 'linux'
+          go vet ./...
+
+      - name: go test
+        run: go test ./...
+
+      - name: build
+        run: go build -trimpath -o deviceshell.exe ./cmd/deviceshell
